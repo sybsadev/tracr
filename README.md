@@ -6,6 +6,8 @@
 
 - php artisan key:generate
 
+- composer install
+
 - npm install
 
 - composer run dev
