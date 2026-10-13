@@ -6,4 +6,8 @@
 
 - php artisan key:generate
 
-- Now app is running on localhost:8000
+- npm install
+
+- composer run dev
+
+- Now app is running on specified ports
