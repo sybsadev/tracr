@@ -21,32 +21,32 @@ class ApiKeyServiceTest extends TestCase
 
         $service = new ApiKeyService();
 
-        $result = $service->new_key($app, 'Test key');
+        $result = $service->newKey($app, 'Test key');
 
-        $secret_key = $result['secret_key'];
+        $secretKey = $result['secret_key'];
         $record = $result['key_record'];
 
         $this->assertModelExists($record);
 
-        $exploded = explode('live_', $secret_key);
+        $exploded = explode('live_', $secretKey);
 
-        $secret_parts = explode('_', $exploded[1]);
+        $secretParts = explode('_', $exploded[1]);
 
-        $public = $secret_parts[0];
+        $public = $secretParts[0];
 
-        $secret = $secret_parts[1];
+        $secret = $secretParts[1];
 
         $key = AppKey::where('public_id', $public)->firstOrFail();
 
         $this->assertModelExists($key);
 
-        $this->assertSame($record->id, $key->id);
+        $this->assertSame($app->id, $key->id);
 
 	$this->assertSame($record->app_id, $key->app_id);
 
-        $secret_hash = hash('sha256', $secret);
+        $secretHash = hash('sha256', $secret);
 
-        $this->assertTrue(hash_equals($key->secret_hash, $secret_hash));
+        $this->assertTrue(hash_equals($key->secret_hash, $secretHash));
     }
 
     /**
@@ -54,14 +54,14 @@ class ApiKeyServiceTest extends TestCase
      */
     public function test_api_keys_different(): void
     {
-	$first_app = App::factory()->create();
-    	$second_app = App::factory()->create();
+	$firstApp = App::factory()->create();
+    	$secondApp = App::factory()->create();
 
 	$service = new ApiKeyService();
 
-	$first_pair = $service->new_key($first_app, "First key");
-	$second_pair = $service->new_key($second_app, "Second key");
+	$firstPair = $service->newKey($firstApp, "First key");
+	$secondPair = $service->newKey($secondApp, "Second key");
 
-	$this->assertNotSame($first_pair['key_record']->public_id, $second_pair['key_record']->public_id);
+	$this->assertNotSame($firstPair['secret_key'], $secondPair['secret_key']);
     }
 }

@@ -15,7 +15,7 @@ class ApiKeyService
 
     }
 
-    public function new_key(App $app, string $name): array
+    public function newKey(App $app, string $name): array
     {
         if (! $app->is_active) {
             throw new ApiKeyGenException('App isnt active');
@@ -27,11 +27,11 @@ class ApiKeyService
             throw new ApiKeyGenException('Name is required for key');
         }
 
-        $public = $this->generate_public();
-        $secret = $this->generate_secret();
+        $public = $this->generatePublic();
+        $secret = $this->generateSecret();
         $secretHash = hash('sha256', $secret);
 
-        $combined = $this->combine_key($public, $secret);
+        $combined = $this->combineKey($public, $secret);
 
         $key = AppKey::create([
             'app_id' => $app->id,
@@ -47,7 +47,7 @@ class ApiKeyService
         ];
     }
 
-    private function generate_secret(): string
+    private function generateSecret(): string
     {
         $bytes = random_bytes(32);
 
@@ -56,7 +56,7 @@ class ApiKeyService
         return $secret;
     }
 
-    private function generate_public(): string
+    private function generatePublic(): string
     {
         $bytes = random_bytes(8);
         $public = bin2hex($bytes);
@@ -64,7 +64,7 @@ class ApiKeyService
         return $public;
     }
 
-    private function combine_key(string $public, string $secret): string
+    private function combineKey(string $public, string $secret): string
     {
         return self::PREFIX.$public.'_'.$secret;
     }
