@@ -41,7 +41,10 @@ class ApiKeyService
             'is_active' => true,
         ]);
 
-        return [$key, $combined];
+        return [
+            'key_record' => $key,
+            'secret_key' => $combined,
+        ];
     }
 
     private function generate_secret(): string
