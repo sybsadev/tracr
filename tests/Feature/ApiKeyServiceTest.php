@@ -13,15 +13,15 @@ class ApiKeyServiceTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * A basic feature test example.
+     * Key generates, it belongs to right app, is valid
      */
-    public function test_api_key_creates_and_secure(): void
+    public function test_api_key_creates_and_valid(): void
     {
         $app = App::factory()->create();
 
-        $service = new ApiKeyService($app);
+        $service = new ApiKeyService();
 
-        $result = $service->new_key('Test key');
+        $result = $service->new_key($app, 'Test key');
 
         $secret_key = $result['secret_key'];
         $record = $result['key_record'];
@@ -42,8 +42,26 @@ class ApiKeyServiceTest extends TestCase
 
         $this->assertSame($record->id, $key->id);
 
+	$this->assertSame($record->app_id, $key->app_id);
+
         $secret_hash = hash('sha256', $secret);
 
         $this->assertTrue(hash_equals($key->secret_hash, $secret_hash));
+    }
+
+    /**
+     * Keys generated with different secrets
+     */
+    public function test_api_keys_different(): void
+    {
+	$first_app = App::factory()->create();
+    	$second_app = App::factory()->create();
+
+	$service = new ApiKeyService();
+
+	$first_pair = $service->new_key($first_app, "First key");
+	$second_pair = $service->new_key($second_app, "Second key");
+
+	$this->assertNotSame($first_pair['key_record']->public_id, $second_pair['key_record']->public_id);
     }
 }

@@ -10,20 +10,20 @@ class ApiKeyService
 {
     private const PREFIX = 'tracr_live_';
 
-    private App $app;
+    public function __construct()
+    {
 
-    public function __construct(App $app)
+    }
+
+    public function new_key(App $app, string $name): array
     {
         if (! $app->is_active) {
             throw new ApiKeyGenException('App isnt active');
         }
 
-        $this->app = $app;
-    }
+	$name = trim($name);
 
-    public function new_key(string $name): array
-    {
-        if ($name === ' ' || $name === '') {
+        if ($name === '') {
             throw new ApiKeyGenException('Name is required for key');
         }
 
@@ -34,7 +34,7 @@ class ApiKeyService
         $combined = $this->combine_key($public, $secret);
 
         $key = AppKey::create([
-            'app_id' => $this->app->id,
+            'app_id' => $app->id,
             'name' => $name,
             'public_id' => $public,
             'secret_hash' => $secretHash,
