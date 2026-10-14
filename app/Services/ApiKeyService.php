@@ -53,7 +53,7 @@ class ApiKeyService
 
         $sep = explode('_', $noPrefix[1]);
 
-        if (count($sep) < 2) {
+        if (count($sep) !== 2) {
             $this->verificationFailed();
         }
 
