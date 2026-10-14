@@ -19,7 +19,7 @@ class ApiKeyAuthentication
         $token = $request->bearerToken();
 
         if (! $token) {
-            return authErrorResponse();
+            return $this->authErrorResponse();
         }
 
         $service = new ApiKeyService;
@@ -27,7 +27,7 @@ class ApiKeyAuthentication
         try {
             $service->verify($token);
         } catch (ApiKeyVerificationException $e) {
-            return authErrorResponse();
+            return $this->authErrorResponse();
         }
 
         return $next($request);
@@ -36,7 +36,7 @@ class ApiKeyAuthentication
     private function authErrorResponse(): Response
     {
         return response()->json([
-            'message' => 'Unauthenticated.', 401,
-        ]);
+            'message' => 'Unauthenticated.'
+        ], 401);
     }
 }
