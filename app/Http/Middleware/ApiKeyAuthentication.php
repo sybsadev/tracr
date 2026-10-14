@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Services\ApiKeyService;
+use App\Exceptions\ApiKeyVerificationException;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,10 +26,12 @@ class ApiKeyAuthentication
         $service = new ApiKeyService;
 
         try {
-            $service->verify($token);
+            $verified = $service->verify($token);
         } catch (ApiKeyVerificationException $e) {
             return $this->authErrorResponse();
         }
+
+	$request->attributes->set(['verified' => $verified]);
 
         return $next($request);
     }
