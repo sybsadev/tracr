@@ -38,6 +38,8 @@ class ApiKeyVerificationTest extends TestCase
 
         $key['key_record']->expires_at = now()->subMinutes(15);
 
+	$key['key_record']->save();
+
         $this->expectException(ApiKeyVerificationException::class);
 
         $apiKeyService->verify($key['secret_key']);
@@ -52,6 +54,8 @@ class ApiKeyVerificationTest extends TestCase
         $key = $apiKeyService->create($app, 'Test key');
 
         $key['key_record']->is_active = false;
+
+	$key['key_record']->save();
 
         $this->expectException(ApiKeyVerificationException::class);
 
@@ -68,6 +72,8 @@ class ApiKeyVerificationTest extends TestCase
 
         $key['key_record']->app->is_active = false;
 
+	$key['key_record']->app->save();
+
         $this->expectException(ApiKeyVerificationException::class);
 
         $apiKeyService->verify($key['secret_key']);
@@ -82,6 +88,9 @@ class ApiKeyVerificationTest extends TestCase
         $key = $apiKeyService->create($app, 'Test key');
 
         $key['key_record']->app->user->is_active = false;
+
+
+	$key['key_record']->app->user->save();
 
         $this->expectException(ApiKeyVerificationException::class);
 

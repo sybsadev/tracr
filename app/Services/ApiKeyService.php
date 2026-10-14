@@ -45,7 +45,7 @@ class ApiKeyService
 
     public function verify(string $key): AppKey
     {
-        if (! str_contains($key, self::PREFIX)) {
+        if (! str_starts_with($key, self::PREFIX)) {
             $this->verificationFailed();
         }
 
@@ -60,7 +60,7 @@ class ApiKeyService
         $public = $sep[0];
         $secret = $sep[1];
 
-        $record = AppKey::where('public_id', $public)->get();
+        $record = AppKey::where('public_id', $public)->first();
 
         if (! $record) {
             $this->verificationFailed();
