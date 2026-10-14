@@ -10,18 +10,13 @@ class ApiKeyService
 {
     private const PREFIX = 'tracr_live_';
 
-    public function __construct()
-    {
-
-    }
-
     public function newKey(App $app, string $name): array
     {
         if (! $app->is_active) {
             throw new ApiKeyGenException('App isnt active');
         }
 
-	$name = trim($name);
+        $name = trim($name);
 
         if ($name === '') {
             throw new ApiKeyGenException('Name is required for key');

@@ -40,9 +40,7 @@ class ApiKeyServiceTest extends TestCase
 
         $this->assertModelExists($key);
 
-        $this->assertSame($app->id, $key->id);
-
-	$this->assertSame($record->app_id, $key->app_id);
+        $this->assertSame($app->id, $key->app_id);
 
         $secretHash = hash('sha256', $secret);
 
