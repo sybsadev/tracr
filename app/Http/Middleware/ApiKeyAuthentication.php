@@ -31,7 +31,7 @@ class ApiKeyAuthentication
             return $this->authErrorResponse();
         }
 
-	$request->attributes->set(['verified' => $verified]);
+	$request->attributes->set('apiKey', $verified);
 
         return $next($request);
     }
