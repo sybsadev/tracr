@@ -11,7 +11,7 @@ class ApiKeyService
 {
     private const PREFIX = 'tracr_live_';
 
-    public function new(App $app, string $name): array
+    public function create(App $app, string $name): array
     {
         if (! $app->is_active) {
             throw new ApiKeyGenException('App isnt active');
@@ -43,15 +43,15 @@ class ApiKeyService
         ];
     }
 
-    public function verify(string $key)
+    public function verify(string $key): AppKey
     {
-        if (! str_contains(self::PREFIX, $key)) {
+        if (! str_contains($key, self::PREFIX)) {
             $this->verificationFailed();
         }
 
         $noPrefix = explode(self::PREFIX, $key);
 
-        $sep = explode($noPrefix, '_');
+        $sep = explode('_', $noPrefix[1]);
 
         if (count($sep) < 2) {
             $this->verificationFailed();
@@ -60,7 +60,11 @@ class ApiKeyService
         $public = $sep[0];
         $secret = $sep[1];
 
-        $record = ApiKey::where('public_id', $public)->firstOrFail();
+        $record = AppKey::where('public_id', $public)->get();
+
+        if (! $record) {
+            $this->verificationFailed();
+        }
 
         if (! $record->is_active) {
             $this->verificationFailed();
@@ -87,7 +91,7 @@ class ApiKeyService
         return $record;
     }
 
-    private function verificationFailed()
+    private function verificationFailed(): never
     {
         throw new ApiKeyVerificationException;
     }

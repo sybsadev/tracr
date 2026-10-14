@@ -19,9 +19,9 @@ class ApiKeyServiceTest extends TestCase
     {
         $app = App::factory()->create();
 
-        $service = new ApiKeyService();
+        $service = new ApiKeyService;
 
-        $result = $service->newKey($app, 'Test key');
+        $result = $service->create($app, 'Test key');
 
         $secretKey = $result['secret_key'];
         $record = $result['key_record'];
@@ -52,14 +52,14 @@ class ApiKeyServiceTest extends TestCase
      */
     public function test_api_keys_different(): void
     {
-	$firstApp = App::factory()->create();
-    	$secondApp = App::factory()->create();
+        $firstApp = App::factory()->create();
+        $secondApp = App::factory()->create();
 
-	$service = new ApiKeyService();
+        $service = new ApiKeyService;
 
-	$firstPair = $service->newKey($firstApp, "First key");
-	$secondPair = $service->newKey($secondApp, "Second key");
+        $firstPair = $service->create($firstApp, 'First key');
+        $secondPair = $service->create($secondApp, 'Second key');
 
-	$this->assertNotSame($firstPair['secret_key'], $secondPair['secret_key']);
+        $this->assertNotSame($firstPair['secret_key'], $secondPair['secret_key']);
     }
 }
