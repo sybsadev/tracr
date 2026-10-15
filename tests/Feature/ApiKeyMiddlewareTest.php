@@ -2,42 +2,52 @@
 
 namespace Tests\Feature;
 
+use App\Http\Middleware\ApiKeyAuthentication;
 use App\Models\App;
 use App\Services\ApiKeyService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 class ApiKeyMiddlewareTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        Route::get('/api-auth-test', function (Request $request) {
+            return response()->json([
+                'api_key_id' => $request->attributes
+                    ->get('apiKey')
+                    ?->id,
+            ], 200);
+        })->middleware(ApiKeyAuthentication::class);
+    }
+
     /**
-     * Main middleware test for blank request
+     * Middleware test for api auth
      */
     public function test_middleware_blank_request_401(): void
     {
-        $response = $this->get('api/api-auth-test');
+        $response = $this->get('/api-auth-test');
 
         $response->assertStatus(401);
     }
 
-    /**
-     * test for invalid secret
-     */
     public function test_middleware_invalid_key_401(): void
     {
         $invalidKey = 'invalid_key';
 
         $response = $this
             ->withToken($invalidKey)
-            ->getJson('api/api-auth-test');
+            ->getJson('/api-auth-test');
 
         $response->assertStatus(401);
     }
 
-    /**
-     * test for valid secret
-     */
     public function test_middleware_valid_key_200(): void
     {
 
@@ -49,14 +59,13 @@ class ApiKeyMiddlewareTest extends TestCase
 
         $response = $this
             ->withToken($key['secret_key'])
-            ->getJson('api/api-auth-test');
+            ->getJson('/api-auth-test');
 
-        $response->assertStatus(200);
+        $response
+            ->assertOk()
+            ->assertJsonPath('api_key_id', $key['key_record']->id);
     }
 
-    /**
-     * test for disabled secret
-     */
     public function test_middleware_disabled_key_401(): void
     {
 
@@ -74,7 +83,7 @@ class ApiKeyMiddlewareTest extends TestCase
 
         $response = $this
             ->withToken($key['secret_key'])
-            ->getJson('api/api-auth-test');
+            ->getJson('/api-auth-test');
 
         $response->assertStatus(401);
     }
