@@ -2,8 +2,8 @@
 
 namespace App\Http\Middleware;
 
-use App\Services\ApiKeyService;
 use App\Exceptions\ApiKeyVerificationException;
+use App\Services\ApiKeyService;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -31,7 +31,7 @@ class ApiKeyAuthentication
             return $this->authErrorResponse();
         }
 
-	$request->attributes->set('apiKey', $verified);
+        $request->attributes->set('apiKey', $verified);
 
         return $next($request);
     }
@@ -39,7 +39,7 @@ class ApiKeyAuthentication
     private function authErrorResponse(): Response
     {
         return response()->json([
-            'message' => 'Unauthenticated.'
+            'message' => 'Unauthenticated.',
         ], 401);
     }
 }
