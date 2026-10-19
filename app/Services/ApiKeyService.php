@@ -115,6 +115,6 @@ class ApiKeyService
 
     private function combineKey(string $public, string $secret): string
     {
-        return self::PREFIX.$public.'_'.$secret;
+        return self::PREFIX . $public . '_' . $secret;
     }
 }

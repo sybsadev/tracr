@@ -36,14 +36,4 @@ class ErrorEventController extends Controller
 
         return new JsonResponse($data, 201);
     }
-
-    private function invalidResponse(): JsonResponse
-    {
-        $data = [
-            'success' => false,
-            'message' => 'Error, try again',
-        ];
-
-        return new JsonResponse($data, 500);
-    }
 }
