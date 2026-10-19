@@ -26,10 +26,9 @@ class ApiKeyService
         $public = $this->generatePublic();
         $secret = $this->generateSecret();
         $secretHash = hash('sha256', $secret);
-
         $combined = $this->combineKey($public, $secret);
 
-        $key = AppKey::create([
+        $record = AppKey::create([
             'app_id' => $app->id,
             'name' => $name,
             'public_id' => $public,
@@ -38,7 +37,7 @@ class ApiKeyService
         ]);
 
         return [
-            'key_record' => $key,
+            'key_record' => $record,
             'secret_key' => $combined,
         ];
     }

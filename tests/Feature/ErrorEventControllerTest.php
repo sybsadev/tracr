@@ -4,9 +4,9 @@ namespace Tests\Feature;
 
 use App\Services\ApiKeyService;
 use App\Models\App;
-use App\Models\AppKey;
+use App\Models\Error;
+use App\Models\ErrorEvent;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class ErrorEventControllerTest extends TestCase
@@ -30,19 +30,151 @@ class ErrorEventControllerTest extends TestCase
         ];
 
         // Act
-        $response = $this->postJson(
-            $url,
-            $payload,
-            ["Authorization" => "Bearer {$key}"]
-        );
-        $event_id = $response->json("data.event_id");
-        $error_id = $response->json("data.error_id");
+        $response = $this
+            ->withToken($key)
+            ->postJson(
+                $url,
+                $payload,
+            );
+        $eventId = $response->json("data.event_id");
+        $errorId = $response->json("data.error_id");
 
         // Assert
-        $this->assertDatabaseCount('errors', 1);
-        $this->assertDatabaseCount('error_events', 1);
-        $this->assertEquals(201, $response->status());
-        $this->assertEquals(1, $event_id);
-        $this->assertEquals(1, $error_id);
+        $error = Error::findOrFail($errorId);
+        $event = ErrorEvent::findOrFail($eventId);
+
+        $response->assertCreated();
+
+        $this->assertEquals($event->error_id, $errorId);
+    }
+
+    public function test_identical_errors_are_grouped(): void
+    {
+        // Arrange
+        $service = new ApiKeyService();
+        $app = App::factory()->create();
+        $recordAndKey = $service->create($app, "Test key 1");
+        $key = $recordAndKey['secret_key'];
+        $url = '/api/v1/errors';
+        $payload = [
+            'exception' => 'RuntimeException',
+            'message' => 'Something went wrong',
+            'file' => '/app/Services/OrderService.php',
+            'line' => 42,
+            'env' => 'production',
+        ];
+
+        // Act
+        $responseFirst = $this
+            ->withToken($key)
+            ->postJson(
+                $url,
+                $payload,
+            );
+        $eventIdFirst = $responseFirst->json("data.event_id");
+        $errorIdFirst = $responseFirst->json("data.error_id");
+
+        $responseSecond = $this
+            ->withToken($key)
+            ->postJson(
+                $url,
+                $payload,
+            );
+        $eventIdSecond = $responseSecond->json("data.event_id");
+        $errorIdSecond = $responseSecond->json("data.error_id");
+
+        // Assert
+        $responseSecond->assertCreated();
+        $responseFirst->assertCreated();
+
+        $errorFirst = Error::findOrFail($errorIdFirst);
+        $errorSecond = Error::findOrFail($errorIdSecond);
+        $this->assertEquals($errorFirst->id, $errorSecond->id);
+
+        $eventFirst = ErrorEvent::findOrFail($eventIdFirst);
+        $eventSecond = ErrorEvent::findOrFail($eventIdSecond);
+        $this->assertEquals($eventFirst->error_id, $eventSecond->error_id);
+    }
+
+    public function test_different_errors_are_separated(): void
+    {
+        // Arrange
+        $service = new ApiKeyService();
+        $app = App::factory()->create();
+        $recordAndKey = $service->create($app, "Test key 1");
+        $key = $recordAndKey['secret_key'];
+        $url = '/api/v1/errors';
+        $payloadFirst = [
+            'exception' => 'RuntimeException',
+            'message' => 'Something went wrong',
+            'file' => '/app/Services/OrderService.php',
+            'line' => 42,
+            'env' => 'production',
+        ];
+
+        $payloadSecond = [
+            'exception' => 'CustomException',
+            'message' => 'Something went wrong',
+            'file' => '/app/Services/ApiKeyService.php',
+            'line' => 24,
+            'env' => 'local',
+        ];
+        // Act
+        $responseFirst = $this
+            ->withToken($key)
+            ->postJson(
+                $url,
+                $payloadFirst,
+            );
+        $eventIdFirst = $responseFirst->json("data.event_id");
+        $errorIdFirst = $responseFirst->json("data.error_id");
+
+        $responseSecond = $this
+            ->withToken($key)
+            ->postJson(
+                $url,
+                $payloadSecond,
+            );
+        $eventIdSecond = $responseSecond->json("data.event_id");
+        $errorIdSecond = $responseSecond->json("data.error_id");
+
+        // Assert
+        $responseSecond->assertCreated();
+        $responseFirst->assertCreated();
+
+        $errorFirst = Error::findOrFail($errorIdFirst);
+        $errorSecond = Error::findOrFail($errorIdSecond);
+        $this->assertNotEquals($errorFirst->id, $errorSecond->id);
+
+        $eventFirst = ErrorEvent::findOrFail($eventIdFirst);
+        $eventSecond = ErrorEvent::findOrFail($eventIdSecond);
+        $this->assertNotEquals($eventFirst->error_id, $eventSecond->error_id);
+    }
+
+    public function test_invalid_payload_is_rejected(): void
+    {
+        // Arrange
+        $service = new ApiKeyService();
+        $app = App::factory()->create();
+        $recordAndKey = $service->create($app, "Test key 1");
+        $key = $recordAndKey['secret_key'];
+        $url = '/api/v1/errors';
+        $payload = [
+            'exception' => 1,
+            'message' => null,
+            'file' => false,
+            'line' => 42,
+            'env' => 'production',
+        ];
+
+        // Act
+        $response = $this
+            ->withToken($key)
+            ->postJson(
+                $url,
+                $payload,
+            );
+
+        $response->assertUnprocessable();
     }
 }
