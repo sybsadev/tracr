@@ -23,7 +23,7 @@ return new class extends Migration
             $table->integer('line');
             $table->timestamps();
 
-            $table->string('fingerprint');
+            $table->text('fingerprint');
 
             $table->unique(['app_id', 'fingerprint']);
         });

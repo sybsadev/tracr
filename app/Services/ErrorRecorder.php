@@ -37,14 +37,12 @@ class ErrorRecorder
 
     private function createFingerprint(App $app, array $data): string
     {
-        $parts = [$app['id'], $data['env'], $data['file'], $data['line'], $data['exception']];
+        $parts = [$data['env'], $data['file'], $data['line'], $data['exception']];
 
-        $fingerprint = '';
+        $fingerprint = json_encode($parts);
 
-        foreach ($parts as $part) {
-            $fingerprint = $fingerprint . "_{$part}";
-        }
+        $hashed = hash('sha256', $fingerprint);
 
-        return $fingerprint;
+        return $hashed;
     }
 }

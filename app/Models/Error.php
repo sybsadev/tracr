@@ -15,8 +15,6 @@ class Error extends Model
         'file',
         'fingerprint',
         'line',
-        'created_at',
-        'updated_at',
     ];
     public function app(): BelongsTo
     {
