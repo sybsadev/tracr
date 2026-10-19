@@ -17,7 +17,7 @@ return new class extends Migration
                 ->references('id')
                 ->on('apps')
                 ->cascadeOnDelete();
-            $table->enum('environment', ['LOCAL', 'DEV', 'PROD']);
+            $table->string('env');
             $table->string('exception');
             $table->string('file');
             $table->integer('line');

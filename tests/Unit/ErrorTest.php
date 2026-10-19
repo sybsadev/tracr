@@ -4,7 +4,6 @@ namespace Tests\Unit;
 
 use App\Models\App;
 use App\Models\User;
-use App\Models\Error;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -12,7 +11,7 @@ class ErrorTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function -()
+    public function test_user_can_have_app()
     {
         $user = User::factory()->create();
 
