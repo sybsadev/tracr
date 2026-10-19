@@ -94,6 +94,9 @@ class ErrorEventControllerTest extends TestCase
         $eventFirst = ErrorEvent::findOrFail($eventIdFirst);
         $eventSecond = ErrorEvent::findOrFail($eventIdSecond);
         $this->assertEquals($eventFirst->error_id, $eventSecond->error_id);
+
+        $this->assertDatabaseCount('error_events', 2);
+        $this->assertDatabaseCount('errors', 1);
     }
 
     public function test_different_errors_are_separated(): void
@@ -149,6 +152,9 @@ class ErrorEventControllerTest extends TestCase
         $eventFirst = ErrorEvent::findOrFail($eventIdFirst);
         $eventSecond = ErrorEvent::findOrFail($eventIdSecond);
         $this->assertNotEquals($eventFirst->error_id, $eventSecond->error_id);
+
+        $this->assertDatabaseCount('error_events', 2);
+        $this->assertDatabaseCount('errors', 2);
     }
 
     public function test_invalid_payload_is_rejected(): void
@@ -176,5 +182,8 @@ class ErrorEventControllerTest extends TestCase
             );
 
         $response->assertUnprocessable();
+
+        $this->assertDatabaseCount('errors', 0);
+        $this->assertDatabaseCount('error_events', 0);
     }
 }
