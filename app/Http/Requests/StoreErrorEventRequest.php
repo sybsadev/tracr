@@ -25,7 +25,7 @@ class StoreErrorEventRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'env' => ['required', Rule::enum(ErrorEnvironment::class)],
+            'env' => ['required', 'string', 'max:36'],
             'file' => ['required', 'string', 'max:255'],
             'exception' => ['required', 'string', 'max:255'],
             'message' => ['required', 'string'],

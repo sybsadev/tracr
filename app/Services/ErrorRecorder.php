@@ -16,6 +16,9 @@ class ErrorRecorder
         $event = DB::transaction(function () use ($fingerprint, $data, $app) {
             $error = Error::firstOrCreate([
                 'app_id' => $app->id,
+                'fingerprint' => $fingerprint,
+            ], [
+                'app_id' => $app->id,
                 'env' => $data['env'],
                 'exception' => $data['exception'],
                 'file' => $data['file'],
@@ -34,12 +37,12 @@ class ErrorRecorder
 
     private function createFingerprint(App $app, array $data): string
     {
-        $parts = [$app['id'], $data['env'], $data['file'], $data['line']];
+        $parts = [$app['id'], $data['env'], $data['file'], $data['line'], $data['exception']];
 
         $fingerprint = '';
 
         foreach ($parts as $part) {
-            $fingerprint = $fingerprint . "{$part}";
+            $fingerprint = $fingerprint . "_{$part}";
         }
 
         return $fingerprint;

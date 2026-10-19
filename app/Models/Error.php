@@ -13,6 +13,7 @@ class Error extends Model
         'env',
         'exception',
         'file',
+        'fingerprint',
         'line',
         'created_at',
         'updated_at',
