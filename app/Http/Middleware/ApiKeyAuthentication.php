@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Exceptions\ApiKeyVerificationException;
 use App\Services\ApiKeyService;
 use Closure;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -36,9 +37,9 @@ class ApiKeyAuthentication
         return $next($request);
     }
 
-    private function authErrorResponse(): Response
+    private function authErrorResponse(): JsonResponse
     {
-        return response()->json([
+        return new JsonResponse([
             'message' => 'Unauthenticated.',
         ], 401);
     }
