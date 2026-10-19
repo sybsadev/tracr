@@ -118,9 +118,9 @@ class ErrorEventControllerTest extends TestCase
         $payloadSecond = [
             'exception' => 'CustomException',
             'message' => 'Something went wrong',
-            'file' => '/app/Services/ApiKeyService.php',
-            'line' => 24,
-            'env' => 'local',
+            'file' => '/app/Services/OrderService.php',
+            'line' => 42,
+            'env' => 'production',
         ];
         // Act
         $responseFirst = $this
