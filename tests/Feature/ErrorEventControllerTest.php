@@ -36,6 +36,9 @@ class ErrorEventControllerTest extends TestCase
                 $url,
                 $payload,
             );
+
+        $response->assertCreated();
+
         $eventId = $response->json("data.event_id");
         $errorId = $response->json("data.error_id");
 
@@ -43,7 +46,6 @@ class ErrorEventControllerTest extends TestCase
         $error = Error::findOrFail($errorId);
         $event = ErrorEvent::findOrFail($eventId);
 
-        $response->assertCreated();
 
         $this->assertEquals($event->error_id, $errorId);
     }
@@ -71,6 +73,9 @@ class ErrorEventControllerTest extends TestCase
                 $url,
                 $payload,
             );
+
+        $responseFirst->assertCreated();
+
         $eventIdFirst = $responseFirst->json("data.event_id");
         $errorIdFirst = $responseFirst->json("data.error_id");
 
@@ -80,13 +85,13 @@ class ErrorEventControllerTest extends TestCase
                 $url,
                 $payload,
             );
+
+        $responseSecond->assertCreated();
+
         $eventIdSecond = $responseSecond->json("data.event_id");
         $errorIdSecond = $responseSecond->json("data.error_id");
 
         // Assert
-        $responseSecond->assertCreated();
-        $responseFirst->assertCreated();
-
         $errorFirst = Error::findOrFail($errorIdFirst);
         $errorSecond = Error::findOrFail($errorIdSecond);
         $this->assertEquals($errorFirst->id, $errorSecond->id);
@@ -129,6 +134,9 @@ class ErrorEventControllerTest extends TestCase
                 $url,
                 $payloadFirst,
             );
+
+        $responseFirst->assertCreated();
+
         $eventIdFirst = $responseFirst->json("data.event_id");
         $errorIdFirst = $responseFirst->json("data.error_id");
 
@@ -138,12 +146,13 @@ class ErrorEventControllerTest extends TestCase
                 $url,
                 $payloadSecond,
             );
+
+        $responseSecond->assertCreated();
+
         $eventIdSecond = $responseSecond->json("data.event_id");
         $errorIdSecond = $responseSecond->json("data.error_id");
 
         // Assert
-        $responseSecond->assertCreated();
-        $responseFirst->assertCreated();
 
         $errorFirst = Error::findOrFail($errorIdFirst);
         $errorSecond = Error::findOrFail($errorIdSecond);
